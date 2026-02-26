@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-import ctypes
-from ctypes import wintypes
+import platform
 
 class GlassCalculator:
     def __init__(self, root):
@@ -10,9 +9,8 @@ class GlassCalculator:
         self.root.geometry("350x500")
         self.root.resizable(False, False)
         
-        # 透明度和毛玻璃设置
-        self.opacity = 0.95
-        self.setup_glass_effect()
+        # 设置深色主题
+        self.setup_theme()
         
         # 历史记录
         self.history = []
@@ -20,27 +18,8 @@ class GlassCalculator:
         
         self.create_ui()
         
-    def setup_glass_effect(self):
-        """设置毛玻璃/透明效果"""
-        # 设置窗口透明
-        self.root.attributes('-alpha', self.opacity)
-        self.root.attributes('-transparentcolor', '')
-        
-        # Windows 毛玻璃效果 (DWM)
-        if ctypes.windll.user32.GetSystemMetrics(0) > 0:  # 检测 Windows
-            try:
-                dwm = ctypes.windll.dwmapi
-                DWMWA_USE_IMMERSIVE_DARK_MODE = 20
-                DWMWA_MICA_EFFECT = 1029
-                
-                hwnd = wintypes.HWND(self.root.winfo_id())
-                value = ctypes.c_int(2)  # 启用 Mica 效果
-                dwm.DwmSetWindowAttribute(hwnd, DWMWA_MICA_EFFECT, 
-                                         ctypes.byref(value), ctypes.sizeof(value))
-            except:
-                pass
-        
-        # 设置深色背景
+    def setup_theme(self):
+        """设置深色主题（跨平台）"""
         self.bg_color = "#1e1e1e"
         self.glass_color = "#2d2d2d"
         self.text_color = "#ffffff"
@@ -50,26 +29,11 @@ class GlassCalculator:
         
     def create_ui(self):
         """创建界面"""
-        # 主容器 - 使用 Frame 实现毛玻璃效果
+        # 主容器
         main_frame = tk.Frame(self.root, bg=self.bg_color)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        # 透明度滑块
-        opacity_frame = tk.Frame(main_frame, bg=self.bg_color)
-        opacity_frame.pack(fill=tk.X, pady=(0, 5))
-        
-        tk.Label(opacity_frame, text="透明度", fg="#888", bg=self.bg_color, 
-                font=("微软雅黑", 8)).pack(side=tk.LEFT)
-        
-        opacity_slider = tk.Scale(opacity_frame, from_=0.3, to=1.0, 
-                                 resolution=0.05, orient=tk.HORIZONTAL,
-                                 bg=self.bg_color, fg=self.text_color,
-                                 highlightthickness=0, bd=0,
-                                 command=self.set_opacity)
-        opacity_slider.set(self.opacity)
-        opacity_slider.pack(side=tk.RIGHT, fill=tk.X, expand=True)
-        
-        # 显示区域 - 毛玻璃效果
+        # 显示区域
         self.display_frame = tk.Frame(main_frame, bg=self.glass_color, 
                                      highlightbackground="#3d3d3d", 
                                      highlightthickness=1)
@@ -89,14 +53,14 @@ class GlassCalculator:
         tk.Label(history_frame, text="历史记录", fg="#888", bg=self.bg_color,
                 font=("微软雅黑", 9)).pack(anchor=tk.W)
         
-        # 历史记录列表 - 小字体、半透明
+        # 历史记录列表
         self.history_text = tk.Text(history_frame, bg=self.bg_color, 
                                    fg="#666666", font=("微软雅黑", 8),
                                    highlightthickness=0, bd=0,
                                    height=10, state=tk.DISABLED)
         self.history_text.pack(fill=tk.BOTH, expand=True, pady=5)
         
-        # 按钮区域 - 极简设计，只有数字和基本运算
+        # 按钮区域
         btn_frame = tk.Frame(main_frame, bg=self.bg_color)
         btn_frame.pack(fill=tk.X, pady=5)
         
@@ -151,11 +115,6 @@ class GlassCalculator:
             btn_frame.columnconfigure(i, weight=1)
         for i in range(5):
             btn_frame.rowconfigure(i, weight=1)
-            
-    def set_opacity(self, value):
-        """设置透明度"""
-        self.opacity = float(value)
-        self.root.attributes('-alpha', self.opacity)
         
     def number(self, num):
         """输入数字"""
