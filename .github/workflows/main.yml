@@ -1,0 +1,51 @@
+name: Build Calculator
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: pip install pyinstaller
+    - run: pyinstaller --onefile --windowed --name Calculator glass_calculator.py
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Calculator-Windows
+        path: dist/Calculator.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: pip install pyinstaller
+    - run: pyinstaller --onefile --windowed --name Calculator glass_calculator.py
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Calculator-Linux
+        path: dist/Calculator
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: pip install pyinstaller
+    - run: pyinstaller --onefile --windowed --name Calculator glass_calculator.py
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Calculator-macOS
+        path: dist/Calculator
